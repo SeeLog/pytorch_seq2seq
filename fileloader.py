@@ -32,7 +32,7 @@ def readLangs(lang1, lang2, reverse=False):
         lines2 = f.readlines()
 
     print("Normaraize...")
-    for i, line in enumerate(tqdm(lines1)):
+    for i, line in enumerate(my_tqdm(lines1)):
         lines1[i] = normalizeString(line)
 
     if reverse:
@@ -62,7 +62,7 @@ def prepareData(lang1, lang2, reverse=False):
     print("Trimmed to %s sentence pairs" % len(pairs))
     print("Counting words...")
 
-    for pair in tqdm(pairs):
+    for pair in my_tqdm(pairs):
         source_lang.addSentence(pair[0])
         target_lang.addSentence(pair[1])
 

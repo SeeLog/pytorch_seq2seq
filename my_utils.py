@@ -1,4 +1,4 @@
-
+import tqdm
 
 __SOS__ = 'SOS'
 __EOS__ = 'EOS'
@@ -13,3 +13,13 @@ eng_prefixes = (
     "we are", "we re ",
     "they are", "they re "
 )
+
+__USE_TQDM__ = False
+
+def my_tqdm(itr):
+    if __USE_TQDM__:
+        return tqdm.tqdm(itr)
+    else:
+        return itr
+
+
