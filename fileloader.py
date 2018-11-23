@@ -44,7 +44,9 @@ def readLangs(lang1, lang2, reverse=False):
         source_lang = Lang(lang1)
         target_lang = Lang(lang2)
 
-    return source_lang, target_lang, pairs
+    token_pairs = list(zip(source_lang.tokenList, target_lang.tokenList))
+
+    return source_lang, target_lang, pairs, token_pairs
 
 
 def filterPair(p):
@@ -55,7 +57,7 @@ def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
 def prepareData(lang1, lang2, reverse=False):
-    source_lang, target_lang, pairs = readLangs(lang1, lang2, reverse)
+    source_lang, target_lang, pairs, token_pairs = readLangs(lang1, lang2, reverse)
     print("Read %s sentence pairs" % len(pairs))
 
     pairs = filterPairs(pairs)
@@ -76,8 +78,10 @@ def prepareData(lang1, lang2, reverse=False):
         pickle.dump(target_lang, f)
     with open("pairs.pkl", "wb") as f:
         pickle.dump(pairs, f)
+    with open("token_pairs.pkl", "wb") as f:
+        pickle.dump(token_pairs, f)
 
-    return source_lang, target_lang, pairs
+    return source_lang, target_lang, pairs, token_pairs
 
 
 def loadPkls(lang1, lang2):
