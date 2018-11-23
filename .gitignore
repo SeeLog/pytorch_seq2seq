@@ -1,2 +1,6 @@
 data/
 __pycache__/
+.tar.gz
+.log
+.gz
+.pkl
