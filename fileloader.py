@@ -44,6 +44,8 @@ def readLangs(lang1, lang2, reverse=False):
         source_lang = Lang(lang1)
         target_lang = Lang(lang2)
 
+    token_pairs = list(zip(source_lang.tokenList, target_lang.tokenList))
+
     return source_lang, target_lang, pairs
 
 

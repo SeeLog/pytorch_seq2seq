@@ -10,9 +10,11 @@ class Lang():
         self.word2count = {}
         self.index2word = {0: __SOS__, 1: __EOS__}
         self.n_words = len(self.index2word)
+        self.tokenList = []
 
     def addSentence(self, sentence):
         tokens = self.tokenize(sentence)
+        self.tokenList.append(tokens)
         for token in tokens:
             self.addWord(token)
 
