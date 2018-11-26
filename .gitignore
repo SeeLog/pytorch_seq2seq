@@ -4,3 +4,4 @@ __pycache__/
 .log
 .gz
 .pkl
+_test.py

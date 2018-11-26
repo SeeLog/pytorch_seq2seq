@@ -1,5 +1,6 @@
 import re
-import nagisa
+#import nagisa
+import MeCab
 
 from my_utils import __SOS__, __EOS__
 
@@ -11,6 +12,7 @@ class Lang():
         self.index2word = {0: __SOS__, 1: __EOS__}
         self.n_words = len(self.index2word)
         self.tokenList = []
+        self.mecab = MeCab.Tagger("-Owakati -d /home/shugo693/.local/lib/mecab/dic/ipadic")
 
     def addSentence(self, sentence):
         tokens = self.tokenize(sentence)
@@ -31,4 +33,7 @@ class Lang():
         if self.name == 'en':
             return sentence.split(' ')
         elif self.name == 'ja':
-            return nagisa.tagging(sentence).words
+            return self.mecab_tokenize(sentence)
+
+    def mecab_tokenize(self, sentence):
+        return self.mecab.parse(sentence).replace("\n", "").strip().split(" ")

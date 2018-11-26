@@ -25,15 +25,18 @@ def normalizeString(s):
 def readLangs(lang1, lang2, reverse=False):
     print("Reading lines...")
 
-    with open("data/train.%s" % lang1, "r", encoding="utf-8") as f:
+    with open("data/test.%s" % lang1, "r", encoding="utf-8") as f:
         lines1 = f.readlines()
 
-    with open("data/train.%s" % lang2, "r", encoding="utf-8") as f:
+    with open("data/test.%s" % lang2, "r", encoding="utf-8") as f:
         lines2 = f.readlines()
 
     print("Normaraize...")
     for i, line in enumerate(my_tqdm(lines1)):
         lines1[i] = normalizeString(line)
+
+    for i, line in enumerate(my_tqdm(lines2)):
+        lines2[i] = line.replace('\n', '')
 
     if reverse:
         pairs = list(zip(lines2, lines1))
@@ -44,9 +47,7 @@ def readLangs(lang1, lang2, reverse=False):
         source_lang = Lang(lang1)
         target_lang = Lang(lang2)
 
-    token_pairs = list(zip(source_lang.tokenList, target_lang.tokenList))
-
-    return source_lang, target_lang, pairs, token_pairs
+    return source_lang, target_lang, pairs
 
 
 def filterPair(p):
@@ -57,7 +58,7 @@ def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
 def prepareData(lang1, lang2, reverse=False):
-    source_lang, target_lang, pairs, token_pairs = readLangs(lang1, lang2, reverse)
+    source_lang, target_lang, pairs = readLangs(lang1, lang2, reverse)
     print("Read %s sentence pairs" % len(pairs))
 
     pairs = filterPairs(pairs)
@@ -68,17 +69,24 @@ def prepareData(lang1, lang2, reverse=False):
         source_lang.addSentence(pair[0])
         target_lang.addSentence(pair[1])
 
+    token_pairs = list(zip(source_lang.tokenList, target_lang.tokenList))
+
     print("Counted words:")
     print(source_lang.name, source_lang.n_words)
     print(target_lang.name, target_lang.n_words)
 
-    with open("Lang_%s.pkl" % lang1, "wb") as f:
+    del source_lang.tokenList
+    del target_lang.tokenList
+    del source_lang.mecab
+    del target_lang.mecab
+
+    with open("./pkls/Lang_%s.pkl" % lang1, "wb") as f:
         pickle.dump(source_lang, f)
-    with open("Lang_%s.pkl" % lang2, "wb") as f:
+    with open("./pkls/Lang_%s.pkl" % lang2, "wb") as f:
         pickle.dump(target_lang, f)
-    with open("pairs.pkl", "wb") as f:
+    with open("./pkls/pairs.pkl", "wb") as f:
         pickle.dump(pairs, f)
-    with open("token_pairs.pkl", "wb") as f:
+    with open("./pkls/token_pairs.pkl", "wb") as f:
         pickle.dump(token_pairs, f)
 
     return source_lang, target_lang, pairs, token_pairs
