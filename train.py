@@ -20,8 +20,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-plt.rcParams['font.family'] = 'Ume Gothic O5'
-plt.rcParams['font.size'] = 10
 
 def compute_bleu(trues, preds):
     return np.mean([bleu_score.sentence_bleu(gt, p) for gt, p in zip(trues, preds)])
@@ -196,8 +194,8 @@ def inference(encoder, decoder, sentence, source_lang: LimitedLang, target_lang:
             decoder_output, decoder_hidden, attention = decoder(
                 decoder_input, decoder_hidden, encoder_outputs)  # (1,odim), ((1,h),(1,h)), (l,1)
             attentions.append(attention)
-            print("ATTN:", attention.shape)
-            print(len(attentions))
+            #print("ATTN:", attention.shape)
+            #print(len(attentions))
             _, topi = decoder_output.topk(1)  # (1, 1)
             if topi.item() == __EOS_ID__:
                 decoded_words.append(__EOS__)
@@ -314,7 +312,7 @@ def train_iters(encoder, decoder, train_pairs, test_pairs, source_lang, target_l
 
         validation_bleus.append(validation_bleu)
 
-        evaluate_randomly(test_pairs, encoder, decoder, source_lang, target_lang)
+        evaluate_randomly(test_pairs, encoder, decoder, source_lang, target_lang, epoch)
 
         if max(validation_bleus[-early_stopping:]) < max(validation_bleus):
             print()
@@ -354,7 +352,7 @@ def save_loss_graph(dic):
 
 
 
-def show_attention(input_sentence, output_words, attentions, num):
+def show_attention(input_sentence, output_words, attentions, num, epoch):
     # Set up figure with colorbar
     input_words = input_sentence
 
@@ -373,7 +371,7 @@ def show_attention(input_sentence, output_words, attentions, num):
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
     #plt.show()
-    plt.savefig("attention_" + str(num) + ".png", bbox_inches="tight")
+    plt.savefig("attn/attention_epoch" + str(epoch) + "_"  + str(num) + ".png", bbox_inches="tight")
 
 def show_plot(points, savefilename):
     plt.figure()
@@ -385,7 +383,7 @@ def show_plot(points, savefilename):
     plt.savefig(savefilename, bbox_inches="tight")
 
 
-def evaluate_randomly(pairs, encoder, decoder, source_lang, target_lang, n=10):
+def evaluate_randomly(pairs, encoder, decoder, source_lang, target_lang, epoch, n=10):
     scores = []
     for i in range(n):
         pair = random.choice(pairs)
@@ -399,7 +397,7 @@ def evaluate_randomly(pairs, encoder, decoder, source_lang, target_lang, n=10):
         print('bleu:', score)
         print('')
         if output_words[0] != __EOS__:
-            show_attention(pair[0], output_words, attentions, i)
+            show_attention(pair[0], output_words, attentions, i, epoch)
         scores.append(score)
     return scores
 
