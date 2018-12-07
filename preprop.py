@@ -1,3 +1,3 @@
 from fileloader import *
 
-prepareData("en", "ja")
+prepareData("en", "ja", valid=True)

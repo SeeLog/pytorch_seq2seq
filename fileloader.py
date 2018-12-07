@@ -1,6 +1,6 @@
 import unicodedata
 import re
-from Lang import Lang
+from Lang import *
 from my_utils import *
 
 from tqdm import tqdm
@@ -22,14 +22,21 @@ def normalizeString(s):
 
     return s
 
-def readLangs(lang1, lang2, reverse=False):
+def readLangs(lang1, lang2, valid=False, reverse=False):
     print("Reading lines...")
 
-    with open("data/test.%s" % lang1, "r", encoding="utf-8") as f:
-        lines1 = f.readlines()
+    if not valid:
+        with open("data/train.%s" % lang1, "r", encoding="utf-8") as f:
+            lines1 = f.readlines()
 
-    with open("data/test.%s" % lang2, "r", encoding="utf-8") as f:
-        lines2 = f.readlines()
+        with open("data/train.%s" % lang2, "r", encoding="utf-8") as f:
+            lines2 = f.readlines()
+    else:
+        with open("data/val.%s" % lang1, "r", encoding="utf-8") as f:
+            lines1 = f.readlines()
+
+        with open("data/val.%s" % lang2, "r", encoding="utf-8") as f:
+            lines2 = f.readlines()
 
     print("Normaraize...")
     for i, line in enumerate(my_tqdm(lines1)):
@@ -57,8 +64,8 @@ def filterPair(p):
 def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
-def prepareData(lang1, lang2, reverse=False):
-    source_lang, target_lang, pairs = readLangs(lang1, lang2, reverse)
+def prepareData(lang1, lang2, valid=False, reverse=False):
+    source_lang, target_lang, pairs = readLangs(lang1, lang2, valid, reverse)
     print("Read %s sentence pairs" % len(pairs))
 
     pairs = filterPairs(pairs)
@@ -80,26 +87,55 @@ def prepareData(lang1, lang2, reverse=False):
     del source_lang.mecab
     del target_lang.mecab
 
-    with open("./pkls/Lang_%s.pkl" % lang1, "wb") as f:
-        pickle.dump(source_lang, f)
-    with open("./pkls/Lang_%s.pkl" % lang2, "wb") as f:
-        pickle.dump(target_lang, f)
-    with open("./pkls/pairs.pkl", "wb") as f:
-        pickle.dump(pairs, f)
-    with open("./pkls/token_pairs.pkl", "wb") as f:
-        pickle.dump(token_pairs, f)
+    if not valid:
+        with open("./pkls/train_Lang_%s.pkl" % lang1, "wb") as f:
+            pickle.dump(source_lang, f)
+        with open("./pkls/train_Lang_%s.pkl" % lang2, "wb") as f:
+            pickle.dump(target_lang, f)
+        with open("./pkls/train_pairs.pkl", "wb") as f:
+            pickle.dump(pairs, f)
+        with open("./pkls/train_token_pairs.pkl", "wb") as f:
+            pickle.dump(token_pairs, f)
+    else:
+        with open("./pkls/eval_pairs.pkl", "wb") as f:
+            pickle.dump(pairs, f)
+        with open("./pkls/eval_token_pairs.pkl", "wb") as f:
+            pickle.dump(token_pairs, f)
+
+    lang_en = LimitedLang(source_lang, 50000)
+    lang_ja = LimitedLang(target_lang, 50000)
+
+    #print(lang_ja.word2count)
+
+    if not valid:
+        with open("./pkls/50k_en_words.pkl", mode='wb') as f:
+            pickle.dump(lang_en, f)
+
+        with open("./pkls/50k_jp_words.pkl", mode='wb') as f:
+            pickle.dump(lang_ja, f)
+    else:
+        with open("./pkls/eval_50k_en_words.pkl", mode='wb') as f:
+            pickle.dump(lang_en, f)
+
+        with open("./pkls/eval_50k_jp_words.pkl", mode='wb') as f:
+            pickle.dump(lang_ja, f)
 
     return source_lang, target_lang, pairs, token_pairs
 
 
-def loadPkls(lang1, lang2):
-    with open("Lang_%s.pkl" % lang1, "wb") as f:
-        source_lang = pickle.dump(f)
-    with open("Lang_%s.pkl" % lang2, "wb") as f:
-        target_lang = pickle.dump(f)
-    with open("pairs.pkl", "wb") as f:
-        pairs = pickle.dump(f)
+def loadPkls():
+    with open("./pkls/50k_en_words.pkl", "rb") as f:
+        source_lang = pickle.load(f)
+    with open("./pkls/50k_jp_words.pkl", "rb") as f:
+        target_lang = pickle.load(f)
+    with open("./pkls/token_pairs_preprop.pkl", "rb") as f:
+    #with open("./pkls/eval_pairs_preprop.pkl", "rb") as f:
+        token_pairs = pickle.load(f)
 
-    return source_lang, target_lang, pairs
+    return source_lang, target_lang, token_pairs
 
+def loadEval():
+    with open("./pkls/eval_pairs_preprop.pkl", "rb") as f:
+        token_pairs = pickle.load(f)
 
+    return token_pairs

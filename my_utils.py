@@ -1,9 +1,18 @@
 import tqdm
+import torch
 
-__SOS__ = 'SOS'
-__EOS__ = 'EOS'
+__PAD__ = '<PAD>'
+__PAD_ID__ = 0
+__SOS__ = '<SOS>'
+__SOS_ID__ = 1
+__EOS__ = '<EOS>'
+__EOS_ID__ = 2
+__UNK__ = '<UNK>'
+__UNK_ID__ = 3
 
 MAX_LENGTH = 30
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 eng_prefixes = (
     "i am ", "i m ",

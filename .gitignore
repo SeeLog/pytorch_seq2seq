@@ -1,7 +1,11 @@
 data/
+pkls/
+model/
 __pycache__/
-.tar.gz
-.log
-.gz
-.pkl
+*.tar.gz
+*.log
+*.gz
+*.pkl
 _test.py
+*.png
+.vscode/
